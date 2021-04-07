@@ -7,16 +7,22 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import hu.bme.ewaste.databinding.ActivityMainBinding
 import java.lang.Exception
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var trashCanObjectDetector: TrashCanObjectDetector
+
+    private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +35,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
+
+        trashCanObjectDetector = TrashCanObjectDetector()
+
+        cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
     private fun startCamera() {
@@ -43,13 +53,18 @@ class MainActivity : AppCompatActivity() {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
+            val objectDetector = ImageAnalysis.Builder()
+                .build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, trashCanObjectDetector)
+                }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
             try {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview
+                    this, cameraSelector, preview, objectDetector
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Use case binding failed", e)
