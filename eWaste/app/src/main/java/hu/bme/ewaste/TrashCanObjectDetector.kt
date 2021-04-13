@@ -1,5 +1,6 @@
 package hu.bme.ewaste
 
+import android.content.Context
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -8,14 +9,15 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
+import hu.bme.ewaste.databinding.ActivityMainBinding
 
-class TrashCanObjectDetector: ImageAnalysis.Analyzer {
+class TrashCanObjectDetector(val context: Context, val binding: ActivityMainBinding) : ImageAnalysis.Analyzer {
 
     private var objectDetector: ObjectDetector
 
     init {
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("model.tflite")
+            .setAssetFilePath("lite-model_object_detection_mobile_object_labeler_v1_1.tflite")
             .build()
 
         // Live detection and tracking
@@ -25,7 +27,7 @@ class TrashCanObjectDetector: ImageAnalysis.Analyzer {
                 .enableMultipleObjects()
                 .enableClassification()
                 .setClassificationConfidenceThreshold(0.5f)
-//                .setMaxPerObjectLabelCount(3)
+                .setMaxPerObjectLabelCount(3)
                 .build()
 
         objectDetector =  ObjectDetection.getClient(customObjectDetectorOptions)
@@ -40,12 +42,22 @@ class TrashCanObjectDetector: ImageAnalysis.Analyzer {
                 .process(image)
                 .addOnSuccessListener { results ->
                     for (detectedObject in results) {
+                        if (binding.layout.childCount > 1) {
+                            binding.layout.removeViewAt(1)
+                            val element = Draw(context, detectedObject.boundingBox, detectedObject.labels.firstOrNull()?.text ?: "Undefined")
+                            binding.layout.addView(element,1)
+                        }
                         Log.d(TAG, "analyze: ${detectedObject.boundingBox}")
+                        detectedObject.labels.forEach { it ->
+                            Log.d(TAG, "analyze: ${it.text}")
+                        }
                     }
+                    imageProxy.close()
+                }
+                .addOnFailureListener {
+                    imageProxy.close()
                 }
         }
-
-        imageProxy.close()
     }
 
     companion object{

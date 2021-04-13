@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.util.Size
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -12,6 +13,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import hu.bme.ewaste.databinding.ActivityMainBinding
 import java.lang.Exception
 import java.util.concurrent.ExecutorService
@@ -26,8 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         // Request camera permissions
         if (allPermissionsGranted()) {
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        trashCanObjectDetector = TrashCanObjectDetector()
+        trashCanObjectDetector = TrashCanObjectDetector(this, binding)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -54,6 +55,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
             val objectDetector = ImageAnalysis.Builder()
+                .setTargetResolution(Size(1280,720))
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
                     it.setAnalyzer(cameraExecutor, trashCanObjectDetector)
