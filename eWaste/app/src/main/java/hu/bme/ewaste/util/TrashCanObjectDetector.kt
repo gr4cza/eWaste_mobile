@@ -44,10 +44,10 @@ class TrashCanObjectDetector(private val context: Context, private val binding: 
                 .process(image)
                 .addOnSuccessListener { results ->
                     for (detectedObject in results) {
-                        if (binding.layout.childCount > 1) {
-                            binding.layout.removeViewAt(1)
+                        if (binding.root.childCount > 1) {
+                            binding.root.removeViewAt(1)
                             val element = Draw(context, detectedObject.boundingBox, detectedObject.labels.firstOrNull()?.text ?: "Undefined")
-                            binding.layout.addView(element,1)
+                            binding.root.addView(element,1)
                         }
                         Timber.d( "analyze: ${detectedObject.boundingBox}")
                         detectedObject.labels.forEach { it ->
