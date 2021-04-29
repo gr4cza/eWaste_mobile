@@ -1,4 +1,4 @@
-package hu.bme.ewaste
+package hu.bme.ewaste.ui
 
 import android.content.Context
 import android.graphics.Canvas

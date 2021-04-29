@@ -1,7 +1,6 @@
-package hu.bme.ewaste
+package hu.bme.ewaste.util
 
 import android.content.Context
-import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.mlkit.common.model.LocalModel
@@ -10,8 +9,11 @@ import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 import hu.bme.ewaste.databinding.ActivityMainBinding
+import hu.bme.ewaste.ui.Draw
+import timber.log.Timber
 
-class TrashCanObjectDetector(val context: Context, val binding: ActivityMainBinding) : ImageAnalysis.Analyzer {
+class TrashCanObjectDetector(private val context: Context, private val binding: ActivityMainBinding) :
+    ImageAnalysis.Analyzer {
 
     private var objectDetector: ObjectDetector
 
@@ -30,7 +32,7 @@ class TrashCanObjectDetector(val context: Context, val binding: ActivityMainBind
                 .setMaxPerObjectLabelCount(3)
                 .build()
 
-        objectDetector =  ObjectDetection.getClient(customObjectDetectorOptions)
+        objectDetector = ObjectDetection.getClient(customObjectDetectorOptions)
     }
 
     @androidx.camera.core.ExperimentalGetImage
@@ -47,10 +49,11 @@ class TrashCanObjectDetector(val context: Context, val binding: ActivityMainBind
                             val element = Draw(context, detectedObject.boundingBox, detectedObject.labels.firstOrNull()?.text ?: "Undefined")
                             binding.layout.addView(element,1)
                         }
-                        Log.d(TAG, "analyze: ${detectedObject.boundingBox}")
+                        Timber.d( "analyze: ${detectedObject.boundingBox}")
                         detectedObject.labels.forEach { it ->
-                            Log.d(TAG, "analyze: ${it.text}")
+                            Timber.d( "analyze: ${it.text}")
                         }
+                        Timber.d("id: ${detectedObject.trackingId}")
                     }
                     imageProxy.close()
                 }
@@ -60,7 +63,4 @@ class TrashCanObjectDetector(val context: Context, val binding: ActivityMainBind
         }
     }
 
-    companion object{
-        private const val TAG = "TrashCanObjectDetector"
-    }
 }

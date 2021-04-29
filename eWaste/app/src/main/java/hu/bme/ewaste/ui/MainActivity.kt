@@ -1,4 +1,4 @@
-package hu.bme.ewaste
+package hu.bme.ewaste.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -14,7 +14,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import hu.bme.ewaste.R
+import hu.bme.ewaste.util.TrashCanObjectDetector
 import hu.bme.ewaste.databinding.ActivityMainBinding
+import timber.log.Timber
 import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -70,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                     this, cameraSelector, preview, objectDetector
                 )
             } catch (e: Exception) {
-                Log.e(TAG, "Use case binding failed", e)
+                Timber.e(e, "Use case binding failed")
             }
 
         }, ContextCompat.getMainExecutor(this))
@@ -102,7 +105,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "MainActivity"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
