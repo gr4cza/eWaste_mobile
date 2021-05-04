@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Size
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -12,6 +13,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import hu.bme.ewaste.data.TrashCanViewModel
 import hu.bme.ewaste.databinding.ActivityMainBinding
 import hu.bme.ewaste.util.TrashCanObjectDetector
 import timber.log.Timber
@@ -20,8 +22,9 @@ import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
+    private val viewModel: TrashCanViewModel by viewModels()
+
     private lateinit var binding: ActivityMainBinding
-    private lateinit var trashCanObjectDetector: TrashCanObjectDetector
 
     private lateinit var cameraExecutor: ExecutorService
 
@@ -37,9 +40,17 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        trashCanObjectDetector = TrashCanObjectDetector(this, binding)
-
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        viewModel.detectedObjects.observe(this) { detectedObjects ->
+            binding.boundingBoxes.apply{
+                detectedObjects.forEach{
+                    rect = it.boundingBox
+                    text = it.labels.firstOrNull()?.text ?: "Undefined"
+                    invalidate()
+                }
+            }
+        }
     }
 
     private fun startCamera() {
@@ -55,11 +66,11 @@ class MainActivity : AppCompatActivity() {
                 }
 
             val objectDetector = ImageAnalysis.Builder()
-                .setTargetResolution(Size(1280,720))
+                .setTargetResolution(Size(1280, 720))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, trashCanObjectDetector)
+                    it.setAnalyzer(cameraExecutor, viewModel.trashCanObjectDetector)
                 }
 
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
@@ -87,6 +98,7 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 startCamera()
@@ -99,6 +111,11 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
     }
 
     companion object {

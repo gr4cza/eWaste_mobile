@@ -5,21 +5,32 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.util.AttributeSet
 import android.view.View
 
-class Draw(context: Context?, var rect: Rect, var text: String) : View(context) {
+class BoundingBoxView: View {
 
     lateinit var paint: Paint
     lateinit var textPaint: Paint
+
+
+    var rect: Rect = Rect()
+    var text: String = ""
+
 
     init {
         init()
     }
 
+    constructor(context: Context?) : super(context)
+
+    constructor(context: Context?, attributeSet: AttributeSet) : super(context, attributeSet)
+
+
     private fun init() {
         paint = Paint()
         paint.color = Color.RED
-        paint.strokeWidth = 20f
+        paint.strokeWidth = 10f
         paint.style = Paint.Style.STROKE
 
         textPaint = Paint()
