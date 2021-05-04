@@ -1,5 +1,9 @@
 package hu.bme.ewaste.di
 
+import android.app.Application
+import android.content.Context
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,13 +18,17 @@ object TrashCanModule {
 
     @Provides
     @Singleton
-    fun provideTrashCanObjectDetector(): TrashCanObjectDetector {
-        return TrashCanObjectDetector()
-    }
+    fun provideTrashCanObjectDetector(): TrashCanObjectDetector = TrashCanObjectDetector()
 
     @Provides
     @Singleton
-    fun provideTrashCanTracker(): TrashCanTracker {
-        return TrashCanTracker()
+    fun provideTrashCanTracker(fusedLocationProviderClient: FusedLocationProviderClient): TrashCanTracker =
+        TrashCanTracker(fusedLocationProviderClient)
+
+
+    @Provides
+    @Singleton
+    fun fusedLocationProviderClient(application: Application): FusedLocationProviderClient {
+        return LocationServices.getFusedLocationProviderClient(application.applicationContext)
     }
 }
