@@ -12,13 +12,17 @@ import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 import timber.log.Timber
 import javax.inject.Inject
 
+typealias DetectedObjects = List<DetectedObject>
+
 class TrashCanObjectDetector @Inject constructor() : ImageAnalysis.Analyzer {
 
     private var objectDetector: ObjectDetector
 
-    private val observers: MutableList<Observer<List<DetectedObject>>> = mutableListOf()
+    private val observers: MutableList<Observer<DetectedObjects>> = mutableListOf()
 
     init {
+        Timber.d("ObjectDetector created")
+
         val localModel = LocalModel.Builder()
             .setAssetFilePath("test_model.tflite")
             .build()
@@ -36,11 +40,15 @@ class TrashCanObjectDetector @Inject constructor() : ImageAnalysis.Analyzer {
         objectDetector = ObjectDetection.getClient(customObjectDetectorOptions)
     }
 
-    fun registerObserver(observer: Observer<List<DetectedObject>>) {
+    fun registerObserver(observer: Observer<DetectedObjects>) {
         observers.add(observer)
     }
 
-    private fun updateObservers(detectedObjects: List<DetectedObject>) {
+    fun urRegisterObserver(observer: Observer<DetectedObjects>) {
+        observers.remove(observer)
+    }
+
+    private fun updateObservers(detectedObjects: DetectedObjects) {
         observers.forEach{
             it.onChanged(detectedObjects)
         }

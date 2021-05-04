@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ewaste.data.TrashCanViewModel
 import hu.bme.ewaste.databinding.ActivityMainBinding
-import hu.bme.ewaste.util.TrashCanObjectDetector
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

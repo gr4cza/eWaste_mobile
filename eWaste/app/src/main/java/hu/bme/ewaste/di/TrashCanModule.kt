@@ -11,9 +11,5 @@ import javax.inject.Singleton
 @InstallIn(ActivityComponent::class)
 object TrashCanModule {
 
-    @Provides
-    @Singleton
-    fun provideTrashCanObjectDetector(): TrashCanObjectDetector {
-        return TrashCanObjectDetector()
-    }
+
 }

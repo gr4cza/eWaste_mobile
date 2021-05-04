@@ -25,7 +25,7 @@ class BoundingBoxView : View {
         paint.style = Paint.Style.STROKE
         textPaint.color = Color.RED
         textPaint.style = Paint.Style.FILL
-        textPaint.textSize = 80f
+        textPaint.textSize = 50f
     }
 
     constructor(context: Context?) : super(context)
@@ -36,7 +36,7 @@ class BoundingBoxView : View {
         super.onDraw(canvas)
         detectedObjects.forEach {
             canvas.drawText(
-                it.labels.firstOrNull()?.text ?: "Undefined",
+                "${it.labels.firstOrNull()?.text ?: "Undefined"} id: ${it.trackingId}",
                 it.boundingBox.centerX().toFloat(),
                 it.boundingBox.centerY().toFloat(),
                 textPaint

@@ -28,4 +28,9 @@ class TrashCanViewModel @Inject constructor(
         _detectedObjects.value = t
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        trashCanObjectDetector.urRegisterObserver(this)
+    }
+
 }
