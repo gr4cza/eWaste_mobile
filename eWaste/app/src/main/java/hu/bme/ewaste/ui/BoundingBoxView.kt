@@ -13,7 +13,6 @@ class BoundingBoxView: View {
     lateinit var paint: Paint
     lateinit var textPaint: Paint
 
-
     var rect: Rect = Rect()
     var text: String = ""
 
@@ -25,7 +24,6 @@ class BoundingBoxView: View {
     constructor(context: Context?) : super(context)
 
     constructor(context: Context?, attributeSet: AttributeSet) : super(context, attributeSet)
-
 
     private fun init() {
         paint = Paint()

@@ -10,8 +10,9 @@ import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 import timber.log.Timber
+import javax.inject.Inject
 
-class TrashCanObjectDetector : ImageAnalysis.Analyzer {
+class TrashCanObjectDetector @Inject constructor() : ImageAnalysis.Analyzer {
 
     private var objectDetector: ObjectDetector
 
@@ -39,7 +40,7 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
         observers.add(observer)
     }
 
-    fun updateObservers(detectedObjects: List<DetectedObject>) {
+    private fun updateObservers(detectedObjects: List<DetectedObject>) {
         observers.forEach{
             it.onChanged(detectedObjects)
         }
@@ -58,11 +59,12 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
 
                     for (detectedObject in results) {
                         Timber.d("analyze: ${detectedObject.boundingBox}")
-                        detectedObject.labels.forEach { it ->
+                        detectedObject.labels.forEach {
                             Timber.d("analyze: ${it.text}")
                         }
                         Timber.d("id: ${detectedObject.trackingId}")
                     }
+                    // TODO remove debugging
                 }
                 .addOnCompleteListener {
                     imageProxy.close()

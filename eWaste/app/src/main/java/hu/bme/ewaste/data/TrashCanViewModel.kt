@@ -5,14 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import com.google.mlkit.vision.objects.DetectedObject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.ewaste.util.TrashCanObjectDetector
+import javax.inject.Inject
 
 typealias DetectedObjects = List<DetectedObject>
 
-class TrashCanViewModel : ViewModel(), Observer<DetectedObjects> {
-    private var _trashCanObjectDetector: TrashCanObjectDetector = TrashCanObjectDetector()
+@HiltViewModel
+class TrashCanViewModel @Inject constructor(
     val trashCanObjectDetector: TrashCanObjectDetector
-        get() = _trashCanObjectDetector
+): ViewModel(), Observer<DetectedObjects> {
 
     private var _detectedObjects: MutableLiveData<DetectedObjects> = MutableLiveData()
     val detectedObjects: LiveData<DetectedObjects>
@@ -22,7 +24,7 @@ class TrashCanViewModel : ViewModel(), Observer<DetectedObjects> {
         trashCanObjectDetector.registerObserver(this)
     }
 
-    override fun onChanged(t: List<DetectedObject>?) {
+    override fun onChanged(t: List<DetectedObject>) {
         _detectedObjects.value = t
     }
 
