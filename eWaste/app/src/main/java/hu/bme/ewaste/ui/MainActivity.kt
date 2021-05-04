@@ -45,13 +45,8 @@ class MainActivity : AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         viewModel.detectedObjects.observe(this) { detectedObjects ->
-            binding.boundingBoxes.apply{
-                detectedObjects.forEach{
-                    rect = it.boundingBox
-                    text = it.labels.firstOrNull()?.text ?: "Undefined"
-                    invalidate()
-                }
-            }
+            binding.boundingBoxes.detectedObjects = detectedObjects
+
         }
     }
 
