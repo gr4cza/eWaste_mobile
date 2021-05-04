@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 typealias DetectedObjects = List<DetectedObject>
 
-class TrashCanObjectDetector @Inject constructor() : ImageAnalysis.Analyzer {
+class TrashCanObjectDetector : ImageAnalysis.Analyzer {
 
     private var objectDetector: ObjectDetector
 
