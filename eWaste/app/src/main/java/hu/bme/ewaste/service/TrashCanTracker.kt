@@ -19,6 +19,9 @@ class TrashCanTracker @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
     private val trashCanRepository: TrashCanRepository
 ) : Observer<DetectedObjects> {
+
+    private val knownObjects = mutableMapOf<Int, Int>()
+
     override fun onChanged(detectedObjects: DetectedObjects) {
         trackDetectedObjects(detectedObjects)
     }
@@ -33,7 +36,13 @@ class TrashCanTracker @Inject constructor(
     }
 
     private fun isNewObject(detectedObject: DetectedObject): Boolean {
-        return true // TODO
+        detectedObject.trackingId?.let {
+            var isKnown = knownObjects.containsKey(it)
+            knownObjects.putIfAbsent(it, 0)
+            knownObjects[it]?.inc()
+            return !isKnown
+        }
+        return false
     }
 
     private fun rememberNewObject(detectedObject: DetectedObject) {
@@ -47,7 +56,7 @@ class TrashCanTracker @Inject constructor(
                 val currentTime = Calendar.getInstance().time
                 val type = detectedObject.labels.getOrNull(0)?.text ?: "Unknown"
                 Timber.d("$location type: $type time: $currentTime")
-                trashCanRepository.writeNewObject()
+                trashCanRepository.writeNewObject(type, location, currentTime)
             } catch (e: SecurityException) {
             }
         }
