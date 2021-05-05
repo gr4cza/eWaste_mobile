@@ -1,13 +1,14 @@
 package hu.bme.ewaste.di
 
 import android.app.Application
-import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import hu.bme.ewaste.db.FirebaseDb
+import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.service.TrashCanTracker
 import hu.bme.ewaste.util.TrashCanObjectDetector
 import javax.inject.Singleton
@@ -22,13 +23,22 @@ object TrashCanModule {
 
     @Provides
     @Singleton
-    fun provideTrashCanTracker(fusedLocationProviderClient: FusedLocationProviderClient): TrashCanTracker =
-        TrashCanTracker(fusedLocationProviderClient)
-
+    fun provideTrashCanTracker(
+        fusedLocationProviderClient: FusedLocationProviderClient,
+        trashCanRepository: TrashCanRepository
+    ): TrashCanTracker = TrashCanTracker(fusedLocationProviderClient, trashCanRepository)
 
     @Provides
     @Singleton
-    fun fusedLocationProviderClient(application: Application): FusedLocationProviderClient {
+    fun provideFusedLocationProviderClient(application: Application): FusedLocationProviderClient {
         return LocationServices.getFusedLocationProviderClient(application.applicationContext)
     }
+
+    @Provides
+    @Singleton
+    fun provideTrashCanRepository(firebaseDb: FirebaseDb) = TrashCanRepository(firebaseDb)
+
+    @Provides
+    @Singleton
+    fun provideFirebaseDb() = FirebaseDb()
 }

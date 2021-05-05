@@ -56,6 +56,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
+
     def camerax_version = "1.1.0-alpha04"
     // CameraX core library using camera2 implementation
     implementation "androidx.camera:camera-camera2:$camerax_version"
@@ -73,7 +76,10 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.8.0')
     // Firebase SDK for Google Analytics
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    // Dependencies for Firebase products
+    // Firebase Realtime Database library
+    implementation 'com.google.firebase:firebase-database-ktx'
+    // Ktx extension to firebase tasks
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.1'
 
     // Activity-Ktx
     implementation "androidx.activity:activity-ktx:1.2.2"

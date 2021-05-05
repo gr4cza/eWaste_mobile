@@ -10,7 +10,6 @@ import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetector
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions
 import timber.log.Timber
-import javax.inject.Inject
 
 typealias DetectedObjects = List<DetectedObject>
 

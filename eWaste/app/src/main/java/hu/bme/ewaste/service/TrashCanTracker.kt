@@ -1,19 +1,23 @@
 package hu.bme.ewaste.service
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
+import android.location.Location
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.mlkit.vision.objects.DetectedObject
+import hu.bme.ewaste.repository.TrashCanRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 typealias DetectedObjects = List<DetectedObject>
 
 class TrashCanTracker @Inject constructor(
-    private val fusedLocationClient: FusedLocationProviderClient
+    private val fusedLocationClient: FusedLocationProviderClient,
+    private val trashCanRepository: TrashCanRepository
 ) : Observer<DetectedObjects> {
     override fun onChanged(detectedObjects: DetectedObjects) {
         trackDetectedObjects(detectedObjects)
@@ -37,12 +41,17 @@ class TrashCanTracker @Inject constructor(
     }
 
     private fun sendNewObject(detectedObject: DetectedObject) {
-        try {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener {
-                    Timber.d(it.toString())
-                }
-        } catch (e: SecurityException) {
+        MainScope().launch(Dispatchers.Default) {
+            try {
+                val location: Location = fusedLocationClient.lastLocation.await()
+                val currentTime = Calendar.getInstance().time
+                val type = detectedObject.labels.getOrNull(0)?.text ?: "Unknown"
+                Timber.d("$location type: $type time: $currentTime")
+                trashCanRepository.writeNewObject()
+            } catch (e: SecurityException) {
+            }
         }
     }
 }
+
+
