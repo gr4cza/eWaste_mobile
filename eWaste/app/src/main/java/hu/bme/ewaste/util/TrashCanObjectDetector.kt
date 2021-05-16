@@ -19,11 +19,25 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
 
     private val observers: MutableList<Observer<DetectedObjects>> = mutableListOf()
 
+    private val trashNames =
+        arrayListOf(
+            "ashcan",
+            "trash can",
+            "garbage can",
+            "wastebin",
+            "ash bin",
+            "ash-bin",
+            "ashbin",
+            "dustbin",
+            "trash barrel",
+            "trash bin"
+        )
+
     init {
         Timber.d("ObjectDetector created")
 
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("test_model.tflite")
+            .setAssetFilePath("efficientnet_lite4_int8_2.tflite")
             .build()
 
         // Live detection and tracking
@@ -48,7 +62,7 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
     }
 
     private fun updateObservers(detectedObjects: DetectedObjects) {
-        observers.forEach{
+        observers.forEach {
             it.onChanged(detectedObjects)
         }
     }
@@ -61,15 +75,19 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
             objectDetector
                 .process(image)
                 .addOnSuccessListener { results ->
-
-                    updateObservers(results)
-
-                    for (detectedObject in results) {
-                        Timber.d("analyze: ${detectedObject.boundingBox}")
-                        detectedObject.labels.forEach {
-                            Timber.d("analyze: ${it.text}")
+                    val trashCans =
+                        results.filter {
+                            it.labels.any { label -> label.text in trashNames }
                         }
-                        Timber.d("id: ${detectedObject.trackingId}")
+
+                    updateObservers(trashCans)
+
+                    for (trashCan in trashCans) {
+                        Timber.d("bounding box: ${trashCan.boundingBox}")
+                        trashCan.labels.forEach {
+                            Timber.d("labels: ${it.text}")
+                        }
+                        Timber.d("id: ${trashCan.trackingId}")
                     }
                     // TODO remove debugging
                 }
