@@ -26,13 +26,14 @@ class TrashCanViewModel @Inject constructor(
 
     init {
         trashCanObjectDetector.registerObserver(this)
+        trashCanObjectDetector.registerObserver(trashCanTracker)
     }
 
     fun toggleTracking() {
         if (_isTracking.value == false) {
-            trashCanObjectDetector.registerObserver(trashCanTracker)
+            trashCanTracker.startTracking()
         } else {
-            trashCanObjectDetector.urRegisterObserver(trashCanTracker)
+            trashCanTracker.stopTracking()
         }
         _isTracking.value = _isTracking.value?.not()
     }
@@ -46,6 +47,7 @@ class TrashCanViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         trashCanObjectDetector.urRegisterObserver(this)
+        trashCanObjectDetector.urRegisterObserver(trashCanTracker)
     }
 
 }

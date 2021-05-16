@@ -8,7 +8,7 @@ import javax.inject.Inject
 class TrashCanRepository @Inject
 constructor(private val firebaseDb: FirebaseDb) {
 
-    fun writeNewObject(type: String, location: Location, time: Date) {
-        firebaseDb.writeNewObject(type, location, time)
+    fun writeNewObject(trackingSessionID: UUID, type: String, location: Location, time: Date) {
+        firebaseDb.writeNewObject(trackingSessionID, type, location, time)
     }
 }

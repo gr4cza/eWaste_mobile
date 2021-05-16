@@ -37,7 +37,7 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
         Timber.d("ObjectDetector created")
 
         val localModel = LocalModel.Builder()
-            .setAssetFilePath("efficientnet_lite4_int8_2.tflite")
+            .setAssetFilePath("efficientnet_lite0_int8_2.tflite")
             .build()
 
         // Live detection and tracking

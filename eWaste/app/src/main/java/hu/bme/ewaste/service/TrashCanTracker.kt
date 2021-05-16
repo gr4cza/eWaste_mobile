@@ -22,8 +22,13 @@ class TrashCanTracker @Inject constructor(
 
     private val knownObjects = mutableMapOf<Int, Int>()
 
+    private var isTracking = false
+    lateinit var trackingSessionID: UUID
+
     override fun onChanged(detectedObjects: DetectedObjects) {
-        trackDetectedObjects(detectedObjects)
+        if (isTracking) {
+            trackDetectedObjects(detectedObjects)
+        }
     }
 
     private fun trackDetectedObjects(detectedObjects: List<DetectedObject>) {
@@ -37,7 +42,7 @@ class TrashCanTracker @Inject constructor(
 
     private fun isNewObject(detectedObject: DetectedObject): Boolean {
         detectedObject.trackingId?.let {
-            var isKnown = knownObjects.containsKey(it)
+            val isKnown = knownObjects.containsKey(it)
             knownObjects.putIfAbsent(it, 0)
             knownObjects[it]?.inc()
             return !isKnown
@@ -56,11 +61,18 @@ class TrashCanTracker @Inject constructor(
                 val currentTime = Calendar.getInstance().time
                 val type = detectedObject.labels.getOrNull(0)?.text ?: "Unknown"
                 Timber.d("$location type: $type time: $currentTime")
-                trashCanRepository.writeNewObject(type, location, currentTime)
+                trashCanRepository.writeNewObject(trackingSessionID, type, location, currentTime)
             } catch (e: SecurityException) {
             }
         }
     }
+
+    fun startTracking() {
+        isTracking = true
+        trackingSessionID = UUID.randomUUID()
+    }
+
+    fun stopTracking() {
+        isTracking = false
+    }
 }
-
-
