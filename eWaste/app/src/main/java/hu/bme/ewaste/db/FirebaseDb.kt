@@ -13,7 +13,7 @@ class FirebaseDb {
 
     fun writeNewObject(trackingSessionID: UUID, type: String, location: Location, time: Date) {
         database.child(trackingSessionID.toString())
-            .child(time.toString())
+            .child(time.time.toString())
             .setValue(
                 TrashCanData(
                     type = type,

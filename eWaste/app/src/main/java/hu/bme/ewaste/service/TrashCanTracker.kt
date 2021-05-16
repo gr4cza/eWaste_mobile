@@ -4,6 +4,7 @@ import android.location.Location
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.mlkit.vision.objects.DetectedObject
+import dagger.hilt.internal.aggregatedroot.codegen._hu_bme_ewaste_MainApplication
 import hu.bme.ewaste.repository.TrashCanRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -12,15 +13,18 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 typealias DetectedObjects = List<DetectedObject>
+
+private const val THRESHOLD = 10
 
 class TrashCanTracker @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
     private val trashCanRepository: TrashCanRepository
 ) : Observer<DetectedObjects> {
 
-    private val knownObjects = mutableMapOf<Int, Int>()
+    private var knownObjects = HashMap<Int, Int>()
 
     private var isTracking = false
     lateinit var trackingSessionID: UUID
@@ -32,26 +36,22 @@ class TrashCanTracker @Inject constructor(
     }
 
     private fun trackDetectedObjects(detectedObjects: List<DetectedObject>) {
-        detectedObjects.forEach {
-            if (isNewObject(it)) {
-                rememberNewObject(it)
-                sendNewObject(it)
+        removeLostIds(detectedObjects)
+
+        detectedObjects.forEach { detectedObject ->
+            detectedObject.trackingId?.let {
+                knownObjects.putIfAbsent(it, 0)
+                knownObjects.computeIfPresent(it) { _, v -> v + 1 }
+                if (knownObjects[it] == THRESHOLD) {
+                    sendNewObject(detectedObject)
+                }
             }
         }
     }
 
-    private fun isNewObject(detectedObject: DetectedObject): Boolean {
-        detectedObject.trackingId?.let {
-            val isKnown = knownObjects.containsKey(it)
-            knownObjects.putIfAbsent(it, 0)
-            knownObjects[it]?.inc()
-            return !isKnown
-        }
-        return false
-    }
-
-    private fun rememberNewObject(detectedObject: DetectedObject) {
-
+    private fun removeLostIds(detectedObjects: List<DetectedObject>) {
+        val detectedIds = detectedObjects.map { it.trackingId }
+        knownObjects = knownObjects.filter { it.key in detectedIds }.toMap(HashMap())
     }
 
     private fun sendNewObject(detectedObject: DetectedObject) {
