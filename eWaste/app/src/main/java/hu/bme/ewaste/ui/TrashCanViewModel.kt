@@ -1,4 +1,4 @@
-package hu.bme.ewaste.data
+package hu.bme.ewaste.ui
 
 import androidx.lifecycle.*
 import com.google.mlkit.vision.objects.DetectedObject

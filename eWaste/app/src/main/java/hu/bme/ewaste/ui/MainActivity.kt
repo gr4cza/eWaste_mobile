@@ -14,7 +14,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
-import hu.bme.ewaste.data.TrashCanViewModel
 import hu.bme.ewaste.databinding.ActivityMainBinding
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
@@ -34,14 +33,14 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
         // Request camera permissions
         if (allPermissionsGranted()) {
             startCamera()
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
-
-        cameraExecutor = Executors.newSingleThreadExecutor()
 
         viewModel.detectedObjects.observe(this) { detectedObjects ->
             binding.boundingBoxes.detectedObjects = detectedObjects
