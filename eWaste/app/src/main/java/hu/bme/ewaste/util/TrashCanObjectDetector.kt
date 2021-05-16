@@ -47,7 +47,7 @@ class TrashCanObjectDetector : ImageAnalysis.Analyzer {
                 .enableMultipleObjects()
                 .enableClassification()
                 .setClassificationConfidenceThreshold(0.5f)
-                .setMaxPerObjectLabelCount(3)
+                .setMaxPerObjectLabelCount(2)
                 .build()
 
         objectDetector = ObjectDetection.getClient(customObjectDetectorOptions)

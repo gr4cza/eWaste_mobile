@@ -13,16 +13,28 @@ typealias DetectedObjects = List<DetectedObject>
 @HiltViewModel
 class TrashCanViewModel @Inject constructor(
     val trashCanObjectDetector: TrashCanObjectDetector,
-    trashCanTracker: TrashCanTracker
-): ViewModel(), Observer<DetectedObjects> {
+    private val trashCanTracker: TrashCanTracker
+) : ViewModel(), Observer<DetectedObjects> {
 
     private var _detectedObjects: MutableLiveData<DetectedObjects> = MutableLiveData()
     val detectedObjects: LiveData<DetectedObjects>
         get() = _detectedObjects
 
+    private var _isTracking = MutableLiveData(false)
+    val isTracking: LiveData<Boolean>
+        get() = _isTracking
+
     init {
         trashCanObjectDetector.registerObserver(this)
-        trashCanObjectDetector.registerObserver(trashCanTracker)
+    }
+
+    fun toggleTracking() {
+        if (_isTracking.value == false) {
+            trashCanObjectDetector.registerObserver(trashCanTracker)
+        } else {
+            trashCanObjectDetector.urRegisterObserver(trashCanTracker)
+        }
+        _isTracking.value = _isTracking.value?.not()
     }
 
     override fun onChanged(detectedObjects: DetectedObjects) {

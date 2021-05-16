@@ -14,6 +14,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
+import hu.bme.ewaste.R
 import hu.bme.ewaste.databinding.ActivityMainBinding
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var cameraExecutor: ExecutorService
+
+    private val targetSize = Size(480, 640)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +47,23 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.detectedObjects.observe(this) { detectedObjects ->
             binding.boundingBoxes.detectedObjects = detectedObjects
+        }
 
+        binding.boundingBoxes.apply {
+            imageWidth = targetSize.width
+            imageHeight = targetSize.height
+        }
+
+        viewModel.isTracking.observe(this) { tracking ->
+            binding.btnTracking.text = if (tracking) {
+                getString(R.string.stop_tracking)
+            } else {
+                getString(R.string.start_tracking)
+            }
+        }
+
+        binding.btnTracking.setOnClickListener {
+            viewModel.toggleTracking()
         }
     }
 
@@ -61,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
             val objectDetector = ImageAnalysis.Builder()
-                .setTargetResolution(Size(1280, 720))
+                .setTargetResolution(targetSize)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
                 .also {
@@ -115,6 +134,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
+        private val REQUIRED_PERMISSIONS =
+            arrayOf(Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)
     }
 }
