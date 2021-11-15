@@ -16,24 +16,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/viewFinder"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <FrameLayout
+        android:id="@+id/preview_display_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
-
-    </androidx.camera.view.PreviewView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <hu.bme.ewaste.ui.BoundingBoxView
         android:id="@+id/bounding_boxes"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/viewFinder"
-        app:layout_constraintEnd_toEndOf="@id/viewFinder"
-        app:layout_constraintStart_toStartOf="@id/viewFinder"
-        app:layout_constraintTop_toTopOf="@id/viewFinder" />
+        app:layout_constraintBottom_toBottomOf="@+id/preview_display_layout"
+        app:layout_constraintEnd_toEndOf="@+id/preview_display_layout"
+        app:layout_constraintStart_toStartOf="@+id/preview_display_layout"
+        app:layout_constraintTop_toTopOf="@+id/preview_display_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
