@@ -3,8 +3,8 @@ package hu.bme.ewaste.ui
 import androidx.lifecycle.*
 import com.google.mlkit.vision.objects.DetectedObject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.bme.ewaste.detector.TrashCanObjectDetector
 import hu.bme.ewaste.service.TrashCanTracker
-import hu.bme.ewaste.util.TrashCanObjectDetector
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -12,7 +12,7 @@ typealias DetectedObjects = List<DetectedObject>
 
 @HiltViewModel
 class TrashCanViewModel @Inject constructor(
-    val trashCanObjectDetector: TrashCanObjectDetector,
+    private val trashCanObjectDetector: TrashCanObjectDetector,
     private val trashCanTracker: TrashCanTracker
 ) : ViewModel(), Observer<DetectedObjects> {
 

@@ -1,16 +1,18 @@
 package hu.bme.ewaste.di
 
 import android.app.Application
+import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import hu.bme.ewaste.db.FirebaseDb
+import hu.bme.ewaste.detector.TrashCanObjectDetector
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.service.TrashCanTracker
-import hu.bme.ewaste.util.TrashCanObjectDetector
 import javax.inject.Singleton
 
 @Module
@@ -19,7 +21,9 @@ object TrashCanModule {
 
     @Provides
     @Singleton
-    fun provideTrashCanObjectDetector(): TrashCanObjectDetector = TrashCanObjectDetector()
+    fun provideTrashCanObjectDetector(@ApplicationContext appContext: Context): TrashCanObjectDetector {
+        return TrashCanObjectDetector(appContext)
+    }
 
     @Provides
     @Singleton
