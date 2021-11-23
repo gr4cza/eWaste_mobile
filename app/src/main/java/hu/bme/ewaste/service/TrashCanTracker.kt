@@ -4,7 +4,6 @@ import android.location.Location
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.mlkit.vision.objects.DetectedObject
-import dagger.hilt.internal.aggregatedroot.codegen._hu_bme_ewaste_MainApplication
 import hu.bme.ewaste.repository.TrashCanRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -13,7 +12,6 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.HashMap
 
 typealias DetectedObjects = List<DetectedObject>
 
