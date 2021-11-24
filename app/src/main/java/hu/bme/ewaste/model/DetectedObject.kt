@@ -16,6 +16,4 @@ enum class TrashCanType {
     override fun toString(): String {
         return super.toString().lowercase(Locale.getDefault())
     }
-
-
 }

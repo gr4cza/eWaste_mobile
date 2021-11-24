@@ -9,7 +9,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import hu.bme.ewaste.db.FirebaseDb
 import hu.bme.ewaste.detector.TrashCanObjectDetector
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.service.TrashCanTracker
@@ -40,9 +39,5 @@ object TrashCanModule {
 
     @Provides
     @Singleton
-    fun provideTrashCanRepository(firebaseDb: FirebaseDb) = TrashCanRepository(firebaseDb)
-
-    @Provides
-    @Singleton
-    fun provideFirebaseDb() = FirebaseDb()
+    fun provideTrashCanRepository() = TrashCanRepository()
 }

@@ -58,7 +58,7 @@ class TrashCanTracker @Inject constructor(
                 val currentTime = Calendar.getInstance().time
                 val type = detectedObject.type.toString()
                 Timber.d("$location type: $type time: $currentTime")
-                trashCanRepository.writeNewObject(trackingSessionID, type, location, currentTime)
+                trashCanRepository.writeNewObject()
             } catch (e: SecurityException) {
             }
         }
@@ -66,7 +66,6 @@ class TrashCanTracker @Inject constructor(
 
     fun startTracking() {
         isTracking = true
-        trackingSessionID = UUID.randomUUID()
     }
 
     fun stopTracking() {

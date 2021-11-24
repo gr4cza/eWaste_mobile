@@ -88,9 +88,7 @@ dependencies {
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:29.0.0')
     // Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics-ktx:20.0.0'
-    // Firebase Realtime Database library
-    implementation 'com.google.firebase:firebase-database-ktx:20.0.2'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
     // Ktx extension to firebase tasks
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.2-native-mt'
 
