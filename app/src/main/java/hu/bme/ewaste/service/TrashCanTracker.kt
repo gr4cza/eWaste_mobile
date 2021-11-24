@@ -3,8 +3,9 @@ package hu.bme.ewaste.service
 import android.location.Location
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.mlkit.vision.objects.DetectedObject
+import hu.bme.ewaste.model.DetectedObject
 import hu.bme.ewaste.repository.TrashCanRepository
+import hu.bme.ewaste.ui.DetectedObjects
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -13,8 +14,6 @@ import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
-typealias DetectedObjects = List<DetectedObject>
-
 private const val THRESHOLD = 10
 
 class TrashCanTracker @Inject constructor(
@@ -22,7 +21,7 @@ class TrashCanTracker @Inject constructor(
     private val trashCanRepository: TrashCanRepository
 ) : Observer<DetectedObjects> {
 
-    private var knownObjects = HashMap<Int, Int>()
+    private var knownObjects = HashMap<Long, Int>()
 
     private var isTracking = false
     lateinit var trackingSessionID: UUID
@@ -37,7 +36,7 @@ class TrashCanTracker @Inject constructor(
         removeLostIds(detectedObjects)
 
         detectedObjects.forEach { detectedObject ->
-            detectedObject.trackingId?.let {
+            detectedObject.trackingId.let {
                 knownObjects.putIfAbsent(it, 0)
                 knownObjects.computeIfPresent(it) { _, v -> v + 1 }
                 if (knownObjects[it] == THRESHOLD) {
@@ -57,7 +56,7 @@ class TrashCanTracker @Inject constructor(
             try {
                 val location: Location = fusedLocationClient.lastLocation.await()
                 val currentTime = Calendar.getInstance().time
-                val type = detectedObject.labels.getOrNull(0)?.text ?: "Unknown"
+                val type = detectedObject.type.toString()
                 Timber.d("$location type: $type time: $currentTime")
                 trashCanRepository.writeNewObject(trackingSessionID, type, location, currentTime)
             } catch (e: SecurityException) {

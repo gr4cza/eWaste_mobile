@@ -11,8 +11,9 @@ import com.google.mediapipe.framework.AndroidAssetUtil
 import com.google.mediapipe.framework.Packet
 import com.google.mediapipe.framework.PacketGetter
 import com.google.mediapipe.glutil.EglManager
-import hu.bme.ewaste.service.DetectedObjects
-import timber.log.Timber
+import hu.bme.ewaste.model.DetectedObject
+import hu.bme.ewaste.model.TrashCanType
+import hu.bme.ewaste.ui.DetectedObjects
 
 class TrashCanObjectDetector(appContext: Context) {
     // Creates and manages an {@link EGLContext}.
@@ -25,6 +26,8 @@ class TrashCanObjectDetector(appContext: Context) {
     // Converts the GL_TEXTURE_EXTERNAL_OES texture from Android camera into a regular texture to be
     // consumed by {@link FrameProcessor} and the underlying MediaPipe graph.
     private lateinit var converter: ExternalTextureConverter
+
+    private val observers: MutableList<Observer<DetectedObjects>> = mutableListOf()
 
     init {
         // Initialize asset manager so that MediaPipe native libraries can access the app assets, e.g.,
@@ -49,10 +52,19 @@ class TrashCanObjectDetector(appContext: Context) {
                     packet,
                     DetectionProto.Detection.parser()
                 )
-            for (detectedObject in detectedObjects) {
-                Timber.d(detectedObject.toString())
-            }
+            detectObject(detectedObjects)
         }
+    }
+
+    private fun detectObject(detectedObjects: MutableList<DetectionProto.Detection>) {
+        val detections = detectedObjects.map {
+            DetectedObject(
+                it.detectionId,
+                TrashCanType.valueOf(it.getLabel(0).uppercase()),
+                it.getScore(0)
+            )
+        }.toList()
+        updateObservers(detections)
     }
 
     fun startDetection() {
@@ -79,9 +91,17 @@ class TrashCanObjectDetector(appContext: Context) {
     }
 
     fun registerObserver(observer: Observer<DetectedObjects>) {
+        observers.add(observer)
     }
 
-    fun urRegisterObserver(observer: Observer<DetectedObjects>) {
+    fun unRegisterObserver(observer: Observer<DetectedObjects>) {
+        observers.remove(observer)
+    }
+
+    private fun updateObservers(detectedObjects: DetectedObjects) {
+        observers.forEach {
+            it.onChanged(detectedObjects)
+        }
     }
 
     companion object {

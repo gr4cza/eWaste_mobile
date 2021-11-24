@@ -26,13 +26,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <hu.bme.ewaste.ui.BoundingBoxView
-        android:id="@+id/bounding_boxes"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/preview_display_layout"
-        app:layout_constraintEnd_toEndOf="@+id/preview_display_layout"
-        app:layout_constraintStart_toStartOf="@+id/preview_display_layout"
-        app:layout_constraintTop_toTopOf="@+id/preview_display_layout" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

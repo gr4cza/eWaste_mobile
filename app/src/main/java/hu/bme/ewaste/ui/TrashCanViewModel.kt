@@ -1,9 +1,9 @@
 package hu.bme.ewaste.ui
 
 import androidx.lifecycle.*
-import com.google.mlkit.vision.objects.DetectedObject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.ewaste.detector.TrashCanObjectDetector
+import hu.bme.ewaste.model.DetectedObject
 import hu.bme.ewaste.service.TrashCanTracker
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,8 +46,8 @@ class TrashCanViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        trashCanObjectDetector.urRegisterObserver(this)
-        trashCanObjectDetector.urRegisterObserver(trashCanTracker)
+        trashCanObjectDetector.unRegisterObserver(this)
+        trashCanObjectDetector.unRegisterObserver(trashCanTracker)
     }
 
 }

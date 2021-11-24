@@ -85,11 +85,6 @@ dependencies {
     // CameraX View class
     implementation 'androidx.camera:camera-view:1.0.0-alpha31'
 
-    // Object detection & tracking feature with model downloaded
-    // from firebase
-    implementation 'com.google.mlkit:object-detection-custom:16.3.3'
-    implementation 'com.google.mlkit:linkfirebase:16.1.1'
-
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:29.0.0')
     // Firebase SDK for Google Analytics
