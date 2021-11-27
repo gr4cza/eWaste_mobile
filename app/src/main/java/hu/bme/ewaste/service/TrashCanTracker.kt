@@ -24,8 +24,6 @@ class TrashCanTracker @Inject constructor(
 
     private var knownObjects = HashMap<Long, TrackedObject>()
 
-    lateinit var tracking: UUID
-
     private var isTracking = false
 
     override fun onChanged(detectedObjects: DetectedObjects) {
