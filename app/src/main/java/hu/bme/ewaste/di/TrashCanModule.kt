@@ -28,8 +28,9 @@ object TrashCanModule {
     @Singleton
     fun provideTrashCanTracker(
         fusedLocationProviderClient: FusedLocationProviderClient,
-        trashCanRepository: TrashCanRepository
-    ): TrashCanTracker = TrashCanTracker(fusedLocationProviderClient, trashCanRepository)
+        trashCanRepository: TrashCanRepository,
+        @ApplicationContext appContext: Context
+    ): TrashCanTracker = TrashCanTracker(fusedLocationProviderClient, trashCanRepository, appContext)
 
     @Provides
     @Singleton

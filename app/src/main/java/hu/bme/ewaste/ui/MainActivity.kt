@@ -1,5 +1,7 @@
 package hu.bme.ewaste.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.util.Size
@@ -8,6 +10,7 @@ import android.view.SurfaceView
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.google.mediapipe.components.CameraHelper.CameraFacing
 import com.google.mediapipe.components.CameraXPreviewHelper
 import com.google.mediapipe.components.PermissionHelper
@@ -15,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ewaste.R
 import hu.bme.ewaste.databinding.ActivityMainBinding
 import hu.bme.ewaste.detector.TrashCanObjectDetector
+import hu.bme.ewaste.service.TrashCanTracker.Companion.LOCATION_PERMISSIONS
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -44,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         previewDisplayView = SurfaceView(this)
         setupPreviewDisplayView()
 
-        PermissionHelper.checkAndRequestCameraPermissions(this)
+        requestPermissions()
 
         viewModel.isTracking.observe(this) { tracking ->
             binding.btnTracking.text = if (tracking) {
@@ -56,6 +60,18 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnTracking.setOnClickListener {
             viewModel.toggleTracking()
+        }
+    }
+
+    private fun requestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+        (LOCATION_PERMISSIONS + CAMERA_PERMISSION).forEach {
+            if (ActivityCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(it)
+            }
+        }
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), 10)
         }
     }
 
@@ -142,5 +158,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val CAMERA_FACING = CameraFacing.BACK
+        const val CAMERA_PERMISSION = Manifest.permission.CAMERA
     }
 }
