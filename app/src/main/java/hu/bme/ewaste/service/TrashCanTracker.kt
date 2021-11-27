@@ -4,6 +4,7 @@ import android.location.Location
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import hu.bme.ewaste.model.DetectedObject
+import hu.bme.ewaste.model.TrackedObject
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.ui.DetectedObjects
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +22,11 @@ class TrashCanTracker @Inject constructor(
     private val trashCanRepository: TrashCanRepository
 ) : Observer<DetectedObjects> {
 
-    private var knownObjects = HashMap<Long, Int>()
+    private var knownObjects = HashMap<Long, TrackedObject>()
+
+    lateinit var tracking: UUID
 
     private var isTracking = false
-    lateinit var trackingSessionID: UUID
 
     override fun onChanged(detectedObjects: DetectedObjects) {
         if (isTracking) {
@@ -36,10 +38,13 @@ class TrashCanTracker @Inject constructor(
         removeLostIds(detectedObjects)
 
         detectedObjects.forEach { detectedObject ->
-            detectedObject.trackingId.let {
-                knownObjects.putIfAbsent(it, 0)
-                knownObjects.computeIfPresent(it) { _, v -> v + 1 }
-                if (knownObjects[it] == THRESHOLD) {
+            detectedObject.detectionId.let {
+                knownObjects.putIfAbsent(it, TrackedObject(detectedObject))
+                knownObjects.computeIfPresent(it) { _, v ->
+                    v.detectionCount += 1
+                    v
+                }
+                if (knownObjects[it]?.detectionCount == THRESHOLD) {
                     sendNewObject(detectedObject)
                 }
             }
@@ -47,7 +52,7 @@ class TrashCanTracker @Inject constructor(
     }
 
     private fun removeLostIds(detectedObjects: List<DetectedObject>) {
-        val detectedIds = detectedObjects.map { it.trackingId }
+        val detectedIds = detectedObjects.map { it.detectionId }
         knownObjects = knownObjects.filter { it.key in detectedIds }.toMap(HashMap())
     }
 
