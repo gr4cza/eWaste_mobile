@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.tasks.CancellationTokenSource
 import hu.bme.ewaste.model.DetectedObject
+import hu.bme.ewaste.model.Detection
 import hu.bme.ewaste.model.TrackedObject
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.ui.DetectedObjects
@@ -52,7 +53,7 @@ class TrashCanTracker @Inject constructor(
                     v
                 }
                 if (knownObjects[it]?.detectionCount == THRESHOLD) {
-                    sendNewObject(detectedObject)
+                    knownObjects[it]?.let { knownObject -> sendNewObject(knownObject) }
                 }
             }
         }
@@ -63,22 +64,35 @@ class TrashCanTracker @Inject constructor(
         knownObjects = knownObjects.filter { it.key in detectedIds }.toMap(HashMap())
     }
 
-    private fun sendNewObject(detectedObject: DetectedObject) {
+    private fun sendNewObject(trackedObject: TrackedObject) {
         if (locationPermissionsGranted()) {
             MainScope().launch(Dispatchers.Default) {
                 try {
-                    val location: Location = fusedLocationClient.getCurrentLocation(
-                        LocationRequest.QUALITY_HIGH_ACCURACY,
-                        cancellationTokenSource.token
-                    ).await()
+                    val location: Location = getLocation()
                     val currentTime = Calendar.getInstance().time
-                    val type = detectedObject.type.toString()
+                    val type = trackedObject.type.toString()
                     Timber.d("$location type: $type time: $currentTime")
-                    trashCanRepository.writeNewObject()
+                    trashCanRepository.writeNewObject(
+                        Detection(
+                            trackedObject.localId,
+                            trackedObject.type,
+                            hu.bme.ewaste.model.Location(
+                                location.latitude,
+                                location.longitude
+                            )
+                        )
+                    )
                 } catch (e: SecurityException) {
                 }
             }
         }
+    }
+
+    private suspend fun getLocation(): Location {
+        return fusedLocationClient.getCurrentLocation(
+            LocationRequest.QUALITY_HIGH_ACCURACY,
+            cancellationTokenSource.token
+        ).await()
     }
 
     private fun locationPermissionsGranted(): Boolean {
