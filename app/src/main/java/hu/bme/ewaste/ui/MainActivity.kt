@@ -149,11 +149,13 @@ class MainActivity : AppCompatActivity() {
         // Connect the converter to the camera-preview frames as its input (via
         // previewFrameTexture), and configure the output width and height as the computed
         // display size.
-        trashCanObjectDetector.setSurfaceTexture(
-            previewFrameTexture,
-            if (isCameraRotated) displaySize.height else displaySize.width,
-            if (isCameraRotated) displaySize.width else displaySize.height
-        )
+        if (displaySize != null) {
+            trashCanObjectDetector.setSurfaceTexture(
+                previewFrameTexture,
+                if (isCameraRotated) displaySize.height else displaySize.width,
+                if (isCameraRotated) displaySize.width else displaySize.height
+            )
+        }
     }
 
     companion object {

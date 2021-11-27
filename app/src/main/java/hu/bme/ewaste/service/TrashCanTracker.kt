@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationRequest
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.tasks.CancellationTokenSource
 import hu.bme.ewaste.model.DetectedObject
 import hu.bme.ewaste.model.TrackedObject
 import hu.bme.ewaste.repository.TrashCanRepository
@@ -30,6 +32,8 @@ class TrashCanTracker @Inject constructor(
     private var knownObjects = HashMap<Long, TrackedObject>()
 
     private var isTracking = false
+
+    private lateinit var cancellationTokenSource: CancellationTokenSource
 
     override fun onChanged(detectedObjects: DetectedObjects) {
         if (isTracking) {
@@ -63,7 +67,10 @@ class TrashCanTracker @Inject constructor(
         if (locationPermissionsGranted()) {
             MainScope().launch(Dispatchers.Default) {
                 try {
-                    val location: Location = fusedLocationClient.lastLocation.await()
+                    val location: Location = fusedLocationClient.getCurrentLocation(
+                        LocationRequest.QUALITY_HIGH_ACCURACY,
+                        cancellationTokenSource.token
+                    ).await()
                     val currentTime = Calendar.getInstance().time
                     val type = detectedObject.type.toString()
                     Timber.d("$location type: $type time: $currentTime")
@@ -76,7 +83,11 @@ class TrashCanTracker @Inject constructor(
 
     private fun locationPermissionsGranted(): Boolean {
         LOCATION_PERMISSIONS.forEach {
-            if (ActivityCompat.checkSelfPermission(appContext, it) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(
+                    appContext,
+                    it
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 return false
             }
         }
@@ -84,14 +95,19 @@ class TrashCanTracker @Inject constructor(
     }
 
     fun startTracking() {
+        cancellationTokenSource = CancellationTokenSource()
         isTracking = true
     }
 
     fun stopTracking() {
         isTracking = false
+        cancellationTokenSource.cancel()
     }
 
-    companion object{
-        val LOCATION_PERMISSIONS = listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+    companion object {
+        val LOCATION_PERMISSIONS = listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
     }
 }
