@@ -29,6 +29,22 @@ android {
         }
     }
 
+    flavorDimensions "url"
+    productFlavors{
+        local{
+            dimension "url"
+            applicationIdSuffix ".local"
+            manifestPlaceholders versionSuffix: 'local'
+            buildConfigField 'String', 'BASE_URL', '" "' // "<your local ip address:port>"
+        }
+        cloud{
+            dimension "url"
+            applicationIdSuffix ".cloud"
+            manifestPlaceholders versionSuffix: 'cloud'
+            buildConfigField 'String', 'BASE_URL', '"https://ewaste-backend.herokuapp.com/"'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -75,7 +91,7 @@ dependencies {
     // AutoValue
     def auto_value_version = '1.8.2'
     implementation "com.google.auto.value:auto-value-annotations:$auto_value_version"
-    annotationProcessor "com.google.auto.value:auto-value:$auto_value_version"
+    kapt "com.google.auto.value:auto-value:$auto_value_version"
 
     def camerax_version = '1.1.0-alpha11'
     implementation "androidx.camera:camera-core:$camerax_version"

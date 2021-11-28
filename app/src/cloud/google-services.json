@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:595671982200:android:a376658b6d9a5236800d8d",
         "android_client_info": {
-          "package_name": "hu.bme.ewaste"
+          "package_name": "hu.bme.ewaste.cloud"
         }
       },
       "oauth_client": [
