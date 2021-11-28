@@ -12,6 +12,11 @@ import dagger.hilt.components.SingletonComponent
 import hu.bme.ewaste.detector.TrashCanObjectDetector
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.service.TrashCanTracker
+import io.ktor.client.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import javax.inject.Singleton
 
 @Module
@@ -40,5 +45,19 @@ object TrashCanModule {
 
     @Provides
     @Singleton
-    fun provideTrashCanRepository() = TrashCanRepository()
+    fun provideTrashCanRepository(httpClient: HttpClient) = TrashCanRepository(httpClient)
+
+    @Provides
+    @Singleton
+    fun provideHttpClient(): HttpClient {
+        return HttpClient(Android){
+            install(Logging){
+                level = LogLevel.ALL
+            }
+
+            install(JsonFeature){
+                serializer = KotlinxSerializer()
+            }
+        }
+    }
 }
