@@ -16,5 +16,5 @@ data class DetectionDTO(
 @Serializable
 data class Location(
     var lat: Double,
-    var long: Double
+    var lng: Double
 )

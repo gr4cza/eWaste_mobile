@@ -21,6 +21,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 private const val THRESHOLD = 10
+private const val PRECISION = 0.65
 
 class TrashCanTracker @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
@@ -47,6 +48,9 @@ class TrashCanTracker @Inject constructor(
             detectedObject.detectionId.let {
                 val trackedObject = knownObjects.getOrPut(it) { TrackedObject(detectedObject) }
                 trackedObject.detectionCount += 1
+                if (trackedObject.precision < detectedObject.precision) {
+                    trackedObject.precision = detectedObject.precision
+                }
             }
         }
 
@@ -55,7 +59,7 @@ class TrashCanTracker @Inject constructor(
                 knownObjects.map {
                     it.value
                 }.filter {
-                    it.detectionCount >= THRESHOLD
+                    it.detectionCount >= THRESHOLD && it.precision >= PRECISION
                 }
             )
         }
@@ -68,14 +72,7 @@ class TrashCanTracker @Inject constructor(
                     val location: Location = getLocation()
                     trashCanRepository.sendDetectedTrashCans(
                         trackedObjects.map { trackedObject ->
-                            DetectionDTO(
-                                trackedObject.localId,
-                                trackedObject.type,
-                                hu.bme.ewaste.data.dto.Location(
-                                    location.latitude,
-                                    location.longitude
-                                )
-                            )
+                            toDetectionDTO(trackedObject, location)
                         }
                     )
                 } catch (e: SecurityException) {
@@ -84,6 +81,18 @@ class TrashCanTracker @Inject constructor(
             }
         }
     }
+
+    private fun toDetectionDTO(
+        trackedObject: TrackedObject,
+        location: Location
+    ) = DetectionDTO(
+        trackedObject.localId,
+        trackedObject.type,
+        hu.bme.ewaste.data.dto.Location(
+            location.latitude,
+            location.longitude
+        )
+    )
 
     private fun removeLostIds(detectedObjects: List<DetectedObject>) {
         val detectedIds = detectedObjects.map { it.detectionId }
