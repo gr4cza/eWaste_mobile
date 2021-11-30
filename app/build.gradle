@@ -41,7 +41,7 @@ android {
             dimension "url"
             applicationIdSuffix ".cloud"
             manifestPlaceholders versionSuffix: 'cloud'
-            buildConfigField 'String', 'BASE_URL', '"https://ewaste-backend.herokuapp.com/"'
+            buildConfigField 'String', 'BASE_URL', '"ewaste-backend.herokuapp.com"'
         }
     }
 
