@@ -1,4 +1,4 @@
-package hu.bme.ewaste.model
+package hu.bme.ewaste.data.model
 
 import java.util.*
 

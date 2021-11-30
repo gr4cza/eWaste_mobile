@@ -3,7 +3,7 @@ package hu.bme.ewaste.ui
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.ewaste.detector.TrashCanObjectDetector
-import hu.bme.ewaste.model.DetectedObject
+import hu.bme.ewaste.data.model.DetectedObject
 import hu.bme.ewaste.service.TrashCanTracker
 import kotlinx.coroutines.launch
 import javax.inject.Inject

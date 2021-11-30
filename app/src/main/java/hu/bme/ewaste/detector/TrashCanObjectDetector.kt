@@ -11,8 +11,8 @@ import com.google.mediapipe.framework.AndroidAssetUtil
 import com.google.mediapipe.framework.Packet
 import com.google.mediapipe.framework.PacketGetter
 import com.google.mediapipe.glutil.EglManager
-import hu.bme.ewaste.model.DetectedObject
-import hu.bme.ewaste.model.TrashCanType
+import hu.bme.ewaste.data.model.DetectedObject
+import hu.bme.ewaste.data.model.TrashCanType
 import hu.bme.ewaste.ui.DetectedObjects
 
 class TrashCanObjectDetector(appContext: Context) {
@@ -58,10 +58,11 @@ class TrashCanObjectDetector(appContext: Context) {
 
     private fun detectObject(detectedObjects: MutableList<DetectionProto.Detection>) {
         val detections = detectedObjects.map {
+            val idx = 0
             DetectedObject(
                 it.detectionId,
-                TrashCanType.valueOf(it.getLabel(0).uppercase()),
-                it.getScore(0)
+                TrashCanType.valueOf(it.getLabel(idx).uppercase()),
+                it.getScore(idx)
             )
         }.toList()
         updateObservers(detections)

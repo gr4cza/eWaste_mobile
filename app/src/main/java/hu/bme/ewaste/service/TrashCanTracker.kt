@@ -9,9 +9,9 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.tasks.CancellationTokenSource
-import hu.bme.ewaste.model.DetectedObject
-import hu.bme.ewaste.model.Detection
-import hu.bme.ewaste.model.TrackedObject
+import hu.bme.ewaste.data.dto.DetectionDTO
+import hu.bme.ewaste.data.model.DetectedObject
+import hu.bme.ewaste.data.model.TrackedObject
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.ui.DetectedObjects
 import kotlinx.coroutines.Dispatchers
@@ -59,11 +59,6 @@ class TrashCanTracker @Inject constructor(
         }
     }
 
-    private fun removeLostIds(detectedObjects: List<DetectedObject>) {
-        val detectedIds = detectedObjects.map { it.detectionId }
-        knownObjects = knownObjects.filter { it.key in detectedIds }.toMap(HashMap())
-    }
-
     private fun sendNewObject(trackedObject: TrackedObject) {
         if (locationPermissionsGranted()) {
             MainScope().launch(Dispatchers.Default) {
@@ -72,20 +67,28 @@ class TrashCanTracker @Inject constructor(
                     val currentTime = Calendar.getInstance().time
                     val type = trackedObject.type.toString()
                     Timber.d("$location type: $type time: $currentTime")
-                    trashCanRepository.writeNewObject(
-                        Detection(
-                            trackedObject.localId,
-                            trackedObject.type,
-                            hu.bme.ewaste.model.Location(
-                                location.latitude,
-                                location.longitude
+                    trashCanRepository.sendDetectedTrashCans(
+                        listOf(
+                            DetectionDTO(
+                                trackedObject.localId,
+                                trackedObject.type,
+                                hu.bme.ewaste.data.dto.Location(
+                                    location.latitude,
+                                    location.longitude
+                                )
                             )
                         )
                     )
                 } catch (e: SecurityException) {
+                    // TODO
                 }
             }
         }
+    }
+
+    private fun removeLostIds(detectedObjects: List<DetectedObject>) {
+        val detectedIds = detectedObjects.map { it.detectionId }
+        knownObjects = knownObjects.filter { it.key in detectedIds }.toMap(HashMap())
     }
 
     private suspend fun getLocation(): Location {

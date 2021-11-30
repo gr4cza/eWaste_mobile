@@ -1,12 +1,12 @@
-package hu.bme.ewaste.model
+package hu.bme.ewaste.data.dto
 
+import hu.bme.ewaste.data.model.TrashCanType
 import hu.bme.ewaste.util.UUIDSerializer
 import kotlinx.serialization.Serializable
 import java.util.*
 
-
 @Serializable
-data class Detection(
+data class DetectionDTO(
     @Serializable(with = UUIDSerializer::class)
     var localId: UUID,
     var type: TrashCanType,
