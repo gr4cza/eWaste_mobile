@@ -18,8 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 
 private const val THRESHOLD = 10
@@ -47,28 +45,29 @@ class TrashCanTracker @Inject constructor(
 
         detectedObjects.forEach { detectedObject ->
             detectedObject.detectionId.let {
-                knownObjects.putIfAbsent(it, TrackedObject(detectedObject))
-                knownObjects.computeIfPresent(it) { _, v ->
-                    v.detectionCount += 1
-                    v
-                }
-                if (knownObjects[it]?.detectionCount == THRESHOLD) {
-                    knownObjects[it]?.let { knownObject -> sendNewObject(knownObject) }
-                }
+                val trackedObject = knownObjects.getOrPut(it) { TrackedObject(detectedObject) }
+                trackedObject.detectionCount += 1
             }
+        }
+
+        if (knownObjects.any { (_, value) -> value.detectionCount == THRESHOLD }) {
+            sendNewObject(
+                knownObjects.map {
+                    it.value
+                }.filter {
+                    it.detectionCount >= THRESHOLD
+                }
+            )
         }
     }
 
-    private fun sendNewObject(trackedObject: TrackedObject) {
+    private fun sendNewObject(trackedObjects: List<TrackedObject>) {
         if (locationPermissionsGranted()) {
             MainScope().launch(Dispatchers.Default) {
                 try {
                     val location: Location = getLocation()
-                    val currentTime = Calendar.getInstance().time
-                    val type = trackedObject.type.toString()
-                    Timber.d("$location type: $type time: $currentTime")
                     trashCanRepository.sendDetectedTrashCans(
-                        listOf(
+                        trackedObjects.map { trackedObject ->
                             DetectionDTO(
                                 trackedObject.localId,
                                 trackedObject.type,
@@ -77,7 +76,7 @@ class TrashCanTracker @Inject constructor(
                                     location.longitude
                                 )
                             )
-                        )
+                        }
                     )
                 } catch (e: SecurityException) {
                     // TODO
