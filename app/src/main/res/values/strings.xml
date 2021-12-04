@@ -2,4 +2,8 @@
     <string name="app_name">eWaste</string>
     <string name="start_tracking">Start Tracking</string>
     <string name="stop_tracking">Stop Tracking</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="detection">Detection</string>
+    <string name="detection_manager">Detection Manager</string>
 </resources>
