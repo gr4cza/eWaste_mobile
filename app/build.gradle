@@ -112,6 +112,9 @@ dependencies {
     // Activity-Ktx
     implementation 'androidx.activity:activity-ktx:1.4.0'
 
+    // Fragment-Ktx
+    implementation "androidx.fragment:fragment-ktx:1.4.0"
+
     // ViewModel
     def lifecycle_version = '2.4.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
