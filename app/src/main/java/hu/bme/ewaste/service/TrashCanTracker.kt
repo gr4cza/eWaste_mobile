@@ -67,7 +67,7 @@ class TrashCanTracker @Inject constructor(
 
     private fun sendNewObject(trackedObjects: List<TrackedObject>) {
         if (locationPermissionsGranted()) {
-            MainScope().launch(Dispatchers.Default) {
+            MainScope().launch(Dispatchers.IO) {
                 try {
                     val location: Location = getLocation()
                     trashCanRepository.sendDetectedTrashCans(
