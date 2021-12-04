@@ -8,27 +8,17 @@ import androidx.core.app.ActivityCompat
 import com.google.mediapipe.components.PermissionHelper
 import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ewaste.R
-import hu.bme.ewaste.databinding.ActivityMainBinding
 import hu.bme.ewaste.service.TrashCanTracker.Companion.LOCATION_PERMISSIONS
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
 
         requestPermissions()
 
-        if (savedInstanceState == null) {
-            val fragment = TrashCanDetector()
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.main_content, fragment)
-                .commit()
-        }
     }
 
     private fun requestPermissions() {
