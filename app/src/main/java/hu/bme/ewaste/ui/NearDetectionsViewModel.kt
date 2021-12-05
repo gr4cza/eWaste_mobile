@@ -3,6 +3,7 @@ package hu.bme.ewaste.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +27,9 @@ class NearDetectionsViewModel @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
 ) : ViewModel() {
 
-    val nearDetections = MutableLiveData<MutableList<DetectionResponse>>()
+    private val _nearDetections: MutableLiveData<MutableList<DetectionResponse>> = MutableLiveData()
+    val nearDetections: LiveData<MutableList<DetectionResponse>>
+        get() = _nearDetections
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
@@ -41,7 +44,7 @@ class NearDetectionsViewModel @Inject constructor(
                         )
                     )
                     Timber.d(nearDetectedTrashCans.toString())
-                    nearDetections.value = nearDetectedTrashCans.toMutableList()
+                    _nearDetections.value = nearDetectedTrashCans.toMutableList()
                 }
             }
         }
@@ -69,8 +72,11 @@ class NearDetectionsViewModel @Inject constructor(
     fun emptyTrashCan(trashCanId: UUID) {
         viewModelScope.launch {
             trashCanRepository.emptyTrashCan(trashCanId = trashCanId)
-            nearDetections.value?.removeIf { it.id == trashCanId }
         }
+        _nearDetections.value =
+            nearDetections.value?.toMutableList()?.apply { removeIf { it.id == trashCanId } }
+                ?.toMutableList()
+        return
     }
 
     fun stopTracking() {

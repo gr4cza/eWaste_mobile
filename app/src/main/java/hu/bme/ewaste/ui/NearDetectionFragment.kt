@@ -2,8 +2,11 @@ package hu.bme.ewaste.ui
 
 import android.os.Bundle
 import android.view.View
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -11,6 +14,7 @@ import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ewaste.R
 import hu.bme.ewaste.databinding.FragmentNearDetectionsBinding
+import hu.bme.ewaste.ui.components.DetectionCard
 
 @AndroidEntryPoint
 class NearDetectionFragment : Fragment(R.layout.fragment_near_detections) {
@@ -23,13 +27,8 @@ class NearDetectionFragment : Fragment(R.layout.fragment_near_detections) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentNearDetectionsBinding.bind(view)
 
-
-        viewModel.nearDetections.observe(viewLifecycleOwner) {
-            binding.text.text = it.toString()
-        }
-        
         binding.nearDetectionsList.setContent {
-            AppCompatTheme{
+            AppCompatTheme {
                 NearDetectionList()
             }
         }
@@ -37,7 +36,14 @@ class NearDetectionFragment : Fragment(R.layout.fragment_near_detections) {
 
     @Composable
     private fun NearDetectionList() {
-        Text(text = "Test")
+        val nearDetections by viewModel.nearDetections.observeAsState()
+        nearDetections?.let {
+            LazyColumn {
+                items(it) { item ->
+                    DetectionCard(detectionResponse = item, onClick = viewModel::emptyTrashCan)
+                }
+            }
+        }
     }
 
     override fun onResume() {
