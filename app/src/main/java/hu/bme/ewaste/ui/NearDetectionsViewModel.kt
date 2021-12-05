@@ -2,22 +2,20 @@ package hu.bme.ewaste.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationRequest
-import androidx.core.app.ActivityCompat
+import android.os.Looper
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.location.LocationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import hu.bme.ewaste.data.dto.DetectionResponse
+import hu.bme.ewaste.data.dto.Location
 import hu.bme.ewaste.repository.TrashCanRepository
-import hu.bme.ewaste.service.TrashCanTracker
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
+import hu.bme.ewaste.util.LocationUtil.locationPermissionsGranted
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -25,51 +23,51 @@ import javax.inject.Inject
 class NearDetectionsViewModel @Inject constructor(
     private val trashCanRepository: TrashCanRepository,
     private val fusedLocationClient: FusedLocationProviderClient,
-    @ApplicationContext appContext: Context
 ) : ViewModel() {
 
-    private var cancellationTokenSource: CancellationTokenSource = CancellationTokenSource()
+    val nearDetections = MutableLiveData<List<DetectionResponse>>()
 
-    init {
-        Timber.d("NearDetectionsViewModel started!")
-
-        viewModelScope.launch {
-            if (locationPermissionsGranted(appContext)) {
-                while (isActive) {
-                    val location = getLocation()
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            super.onLocationResult(result)
+            result.locations.let {
+                Timber.d(it.toString())
+                viewModelScope.launch {
                     val nearDetectedTrashCans = trashCanRepository.getNearDetectedTrashCans(
-                        location = hu.bme.ewaste.data.dto.Location(
-                            location.latitude,
-                            location.longitude
+                        Location(
+                            it[0].latitude,
+                            it[0].longitude
                         )
                     )
                     Timber.d(nearDetectedTrashCans.toString())
-                    delay(5000L)
+                    nearDetections.value = nearDetectedTrashCans
                 }
             }
         }
-
     }
 
-    @SuppressLint("MissingPermission", "InlinedApi")
-    private suspend fun getLocation(): Location {
-        return fusedLocationClient.getCurrentLocation(
-            LocationRequest.QUALITY_HIGH_ACCURACY,
-            cancellationTokenSource.token
-        ).await()
-    }
-
-    private fun locationPermissionsGranted(appContext: Context): Boolean {
-        TrashCanTracker.LOCATION_PERMISSIONS.forEach {
-            if (ActivityCompat.checkSelfPermission(
-                    appContext,
-                    it
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return false
+    @SuppressLint("MissingPermission")
+    fun startTracking(appContext: Context) {
+        Timber.d("tracking started")
+        if (locationPermissionsGranted(appContext)) {
+            val request = com.google.android.gms.location.LocationRequest.create().apply {
+                interval = 5000L
+                fastestInterval = 2000L
+                isWaitForAccurateLocation = true
+                priority = PRIORITY_HIGH_ACCURACY
+                smallestDisplacement = 3.0f
             }
+            fusedLocationClient.requestLocationUpdates(
+                request,
+                locationCallback,
+                Looper.getMainLooper()
+            )
         }
-        return true
+    }
+
+    fun stopTracking() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+        Timber.d("tracking stopped")
     }
 
 }

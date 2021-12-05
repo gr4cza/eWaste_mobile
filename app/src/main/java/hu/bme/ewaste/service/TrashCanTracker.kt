@@ -1,11 +1,8 @@
 package hu.bme.ewaste.service
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationRequest
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -14,6 +11,7 @@ import hu.bme.ewaste.data.model.DetectedObject
 import hu.bme.ewaste.data.model.TrackedObject
 import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.ui.DetectedObjects
+import hu.bme.ewaste.util.LocationUtil.locationPermissionsGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -66,7 +64,7 @@ class TrashCanTracker @Inject constructor(
     }
 
     private fun sendNewObject(trackedObjects: List<TrackedObject>) {
-        if (locationPermissionsGranted()) {
+        if (locationPermissionsGranted(appContext)) {
             MainScope().launch(Dispatchers.IO) {
                 try {
                     val location: Location = getLocation()
@@ -106,19 +104,6 @@ class TrashCanTracker @Inject constructor(
         ).await()
     }
 
-    private fun locationPermissionsGranted(): Boolean {
-        LOCATION_PERMISSIONS.forEach {
-            if (ActivityCompat.checkSelfPermission(
-                    appContext,
-                    it
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return false
-            }
-        }
-        return true
-    }
-
     fun startTracking() {
         cancellationTokenSource = CancellationTokenSource()
         isTracking = true
@@ -127,12 +112,5 @@ class TrashCanTracker @Inject constructor(
     fun stopTracking() {
         isTracking = false
         cancellationTokenSource.cancel()
-    }
-
-    companion object {
-        val LOCATION_PERMISSIONS = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
     }
 }

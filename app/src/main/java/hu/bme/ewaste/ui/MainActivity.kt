@@ -8,7 +8,7 @@ import androidx.core.app.ActivityCompat
 import com.google.mediapipe.components.PermissionHelper
 import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ewaste.R
-import hu.bme.ewaste.service.TrashCanTracker.Companion.LOCATION_PERMISSIONS
+import hu.bme.ewaste.util.LocationUtil.LOCATION_PERMISSIONS
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
