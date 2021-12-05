@@ -6,15 +6,23 @@
     app:startDestination="@id/mainMenu">
     <fragment
         android:id="@+id/trashCanDetector"
-        android:name="hu.bme.ewaste.ui.TrashCanDetector"
+        android:name="hu.bme.ewaste.ui.TrashCanDetectorFragment"
         android:label="TrashCanDetector" />
     <fragment
         android:id="@+id/mainMenu"
-        android:name="hu.bme.ewaste.ui.MainMenu"
+        android:name="hu.bme.ewaste.ui.MainMenuFragment"
         android:label="fragment_main_menu"
         tools:layout="@layout/fragment_main_menu" >
         <action
             android:id="@+id/action_mainMenu_to_trashCanDetector"
             app:destination="@id/trashCanDetector" />
+        <action
+            android:id="@+id/action_mainMenu_to_nearDetections"
+            app:destination="@id/nearDetections" />
     </fragment>
+    <fragment
+        android:id="@+id/nearDetections"
+        android:name="hu.bme.ewaste.ui.NearDetectionFragment"
+        android:label="fragment_near_detections"
+        tools:layout="@layout/fragment_near_detections" />
 </navigation>

@@ -18,7 +18,7 @@ import hu.bme.ewaste.detector.TrashCanObjectDetector
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TrashCanDetector : Fragment(R.layout.fragment_trash_can_detector) {
+class TrashCanDetectorFragment : Fragment(R.layout.fragment_trash_can_detector) {
 
     private val viewModel by viewModels<TrashCanDetectorViewModel>()
 

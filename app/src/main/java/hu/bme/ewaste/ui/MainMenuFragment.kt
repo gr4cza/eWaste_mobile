@@ -8,7 +8,7 @@ import hu.bme.ewaste.R
 import hu.bme.ewaste.databinding.FragmentMainMenuBinding
 
 
-class MainMenu : Fragment(R.layout.fragment_main_menu) {
+class MainMenuFragment : Fragment(R.layout.fragment_main_menu) {
 
     private lateinit var binding: FragmentMainMenuBinding
 
@@ -18,6 +18,10 @@ class MainMenu : Fragment(R.layout.fragment_main_menu) {
 
         binding.detectionButton.setOnClickListener {
             it.findNavController().navigate(R.id.action_mainMenu_to_trashCanDetector)
+        }
+
+        binding.nearDetectionsButton.setOnClickListener {
+            it.findNavController().navigate(R.id.action_mainMenu_to_nearDetections)
         }
     }
 }
