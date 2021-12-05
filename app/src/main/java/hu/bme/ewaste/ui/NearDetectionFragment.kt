@@ -2,8 +2,12 @@ package hu.bme.ewaste.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.accompanist.appcompattheme.AppCompatTheme
 import dagger.hilt.android.AndroidEntryPoint
 import hu.bme.ewaste.R
 import hu.bme.ewaste.databinding.FragmentNearDetectionsBinding
@@ -23,6 +27,17 @@ class NearDetectionFragment : Fragment(R.layout.fragment_near_detections) {
         viewModel.nearDetections.observe(viewLifecycleOwner) {
             binding.text.text = it.toString()
         }
+        
+        binding.nearDetectionsList.setContent {
+            AppCompatTheme{
+                NearDetectionList()
+            }
+        }
+    }
+
+    @Composable
+    private fun NearDetectionList() {
+        Text(text = "Test")
     }
 
     override fun onResume() {
@@ -33,5 +48,11 @@ class NearDetectionFragment : Fragment(R.layout.fragment_near_detections) {
     override fun onPause() {
         super.onPause()
         viewModel.stopTracking()
+    }
+
+    @Preview
+    @Composable
+    fun ComposablePreview() {
+        NearDetectionList()
     }
 }

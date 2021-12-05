@@ -17,6 +17,7 @@ import hu.bme.ewaste.repository.TrashCanRepository
 import hu.bme.ewaste.util.LocationUtil.locationPermissionsGranted
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +26,7 @@ class NearDetectionsViewModel @Inject constructor(
     private val fusedLocationClient: FusedLocationProviderClient,
 ) : ViewModel() {
 
-    val nearDetections = MutableLiveData<List<DetectionResponse>>()
+    val nearDetections = MutableLiveData<MutableList<DetectionResponse>>()
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(result: LocationResult) {
@@ -40,7 +41,7 @@ class NearDetectionsViewModel @Inject constructor(
                         )
                     )
                     Timber.d(nearDetectedTrashCans.toString())
-                    nearDetections.value = nearDetectedTrashCans
+                    nearDetections.value = nearDetectedTrashCans.toMutableList()
                 }
             }
         }
@@ -62,6 +63,13 @@ class NearDetectionsViewModel @Inject constructor(
                 locationCallback,
                 Looper.getMainLooper()
             )
+        }
+    }
+
+    fun emptyTrashCan(trashCanId: UUID) {
+        viewModelScope.launch {
+            trashCanRepository.emptyTrashCan(trashCanId = trashCanId)
+            nearDetections.value?.removeIf { it.id == trashCanId }
         }
     }
 
